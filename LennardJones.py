@@ -1,8 +1,8 @@
-# import numpy as np
+import numpy as np
 from Vector3d import Vector3d
 
 class LennardJones:
-	def __init__(self, sigma=1, epsilon=1, r_c=3):
+	def __init__(self, sigma=1, epsilon=1, r_c=1.3):
 		self.sigma = sigma
 		self.epsilon = epsilon
 		self.r_c = r_c
@@ -12,7 +12,7 @@ class LennardJones:
 			return 0
 		else:
 			rs = self.sigma/r
-			# print("rs: {}".format(rs))
+			# print("r: {}".format(r))
 			return 4*self.epsilon*(rs**12 - rs**6)
 
 	def gradientMag(self, r):
@@ -20,8 +20,13 @@ class LennardJones:
 		return 4*self.epsilon*(12*rs**11 - 6*rs**5)*(-rs/r)
 
 	def eval_force(self, rVector):
+		# print("eval_force: rVector: ",rVector)
 		r = np.linalg.norm(rVector)
+		if r >= self.r_c:
+			return Vector3d()
 		g = self.gradientMag(r)
 		rhat = rVector/r
-		return rhat * -g # force is negative gradient
+		result = rhat * -g # force is negative gradient
+		# print("eval_force: result: ",result)
+		return result
 

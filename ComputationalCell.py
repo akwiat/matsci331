@@ -4,7 +4,7 @@ from Vector3d import Vector3d
 
 class ComputationalCell:
 	def __init__(self):
-		self.numAtoms = 10
+		# self.numAtoms = 10
 		self.numBasic = 2
 		# maxCompCells = 1
 		# self.L = numBasic
