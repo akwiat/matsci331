@@ -1,37 +1,21 @@
-from lennard-jones import LennardJones
+from Computation import Computation
+from ComputationalCell import FccCell
+from LennardJones import LennardJones
 
-class ComputationalCell:
-	def __init__(self):
-		self.numAtoms = 10
-		self.L = 3
-		self.M = 3
-		self.N = 3
-		self.lmax = 3
-		self.mmax = 3
-		self.nmax = 3
-		self.atoms = []
-		self.potential = LennardJones()
+def make_computation():
+	return Computation(CellType = FccCell, PotentialType = LennardJones)
+def prob2():
+	c = make_computation()
+	# totalE = c.total_energy()
+	# print(totalE)
+	e = c.energy_per_atom()
+	print(e)
 
-	def computePotential(self):
-		result = 0
-		for i, ai in enumerate(self.atoms):
-			for j, aj in enumerate(self.atoms):
-				for l in range(-self.lmax, self.lmax):
-					for m in range(-self.mmax, self.mmax):
-						for n in range(-self.nmax, self.nmax):
-							rVector = ai.r - aj.r
-							r = rVector.magnitude()
-							result += self.potential.evaluate(r)
+def test_potential():
+	c = make_computation()
+	p = c.potential
+	print(p.evaluate(0.7))
 
-		return result
-
-	def computeForce(self):
-		r_0 = Vector3d()
-		result = Vector3d()
-		for i, ai in enumerate(self.atoms):
-			for l in range(-self.lmax, self.lmax):
-				for m in range(-self.mmax, self.mmax):
-					for n in range(-self.nmax, self.nmax):
-						relative = ai.r - r_0
-						f = self.potential.eval_force(relative)
-						result += f
+if __name__ == "__main__":
+	# test_potential()
+	prob2()

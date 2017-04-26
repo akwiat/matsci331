@@ -1,8 +1,10 @@
 import numpy as np
 
 class Vector3d(np.ndarray):
-	def __init__(self, buffer):
-		super.__init__(shape=(3,1), order='F', buffer=buffer)
+	def __new__(cls, buffer):
+		# super().__new__(shape=(3,1), order='F', buffer=buffer)
+		obj = np.asarray(buffer).view(cls)
+		return obj
 
 	def magnitude(self):
 		return np.linalg.norm(self)
