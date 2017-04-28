@@ -12,21 +12,53 @@ class ComputationalCell:
 		# self.N = numBasic
 		self.atoms = []
 		self.a = None
-		self.vacancies = []
+		self.vacancy = False
+
+		self.full_atom_list = []
+		self.use_explicit_list = False
+
+	def construct_full_atom_list(self):
+		self.use_explicit_list = True
+		numBasic = self.numBasic
+		for l in range(numBasic):
+			for m in range(numBasic):
+				for n in range(numBasic):
+					for ai, a in enumerate(self.atoms):
+						nOrigin = self.a * Vector3d([l,m,n])
+						nAtom = a.translate_clone(nOrigin)
+						self.full_atom_list.append(nAtom)
+
+		if self.vacancy:
+			self.full_atom_list.pop()
+
+		print("list size: ",len(self.full_atom_list))
+		return self.full_atom_list
 
 	def cell_size(self):
 		if self.a is None:
 			raise ValueError
 		return self.a * self.numBasic
+
 	def iter_atoms(self):
-		numBasic = self.numBasic
-		for l in range(numBasic):
-			for m in range(numBasic):
-				for n in range(numBasic):
-					for a in self.atoms:
-						nOrigin = self.a * Vector3d([l,m,n])
-						yield a.translate_clone(nOrigin)
-		return
+		if self.use_explicit_list:
+			for a in self.full_atom_list:
+				yield a
+			return
+		else:
+			numBasic = self.numBasic
+			for l in range(numBasic):
+				for m in range(numBasic):
+					for n in range(numBasic):
+						for ai, a in enumerate(self.atoms):
+
+							if self.vacancy:
+								if l==0 and m==0 and n==0:
+									if ai==1:
+										continue
+
+							nOrigin = self.a * Vector3d([l,m,n])
+							yield a.translate_clone(nOrigin)
+			return
 
 	def compute_potential(self):
 		result = 0

@@ -8,3 +8,10 @@ class Vector3d(np.ndarray):
 
 	def magnitude(self):
 		return np.linalg.norm(self)
+
+	def normalize(self):
+		m = self.magnitude()
+		if m == 0:
+			raise ValueError
+
+		return self / m
