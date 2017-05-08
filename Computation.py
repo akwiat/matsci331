@@ -35,14 +35,14 @@ class Computation:
 		nOrigin = cell_size * Vector3d([x,y,z])
 		return nOrigin
 
-	def iter_atoms(self):
+	def iter_all_atoms(self):
 		for cell,origin in self.iter_cells():
 			for a in cell.iter_atoms():
 				nAtom = a.translate_clone(origin)
 				yield nAtom
 		return
 
-	def iter_main_cell_atoms(self):
+	def iter_atoms(self):
 		cell = self.computationalCell
 		num_middle = (self.numCopies-1)/2
 		origin = self.get_cell_origin(num_middle, num_middle, num_middle)

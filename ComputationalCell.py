@@ -15,7 +15,9 @@ class ComputationalCell:
 		self.vacancy = False
 
 		self.full_atom_list = []
-		self.use_explicit_list = False
+		self.use_explicit_list = True
+
+		self.construct_full_atom_list()
 
 	def construct_full_atom_list(self):
 		self.use_explicit_list = True
