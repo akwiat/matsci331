@@ -30,7 +30,7 @@ class LennardJones:
 		# print("eval_force: result: ",result)
 		return result
 
-class LennardJonesCts:
+class LennardJonesCts(LennardJones):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 

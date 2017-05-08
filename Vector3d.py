@@ -9,6 +9,9 @@ class Vector3d(np.ndarray):
 	def magnitude(self):
 		return np.linalg.norm(self)
 
+	def square(self):
+		return self.magnitude()**2
+		
 	def normalize(self):
 		m = self.magnitude()
 		if m == 0:
