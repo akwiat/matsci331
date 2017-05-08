@@ -30,3 +30,17 @@ class LennardJones:
 		# print("eval_force: result: ",result)
 		return result
 
+class LennardJonesCts:
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+	def evaluate(self, r):
+		if r >= self.r_c:
+			return 0.0
+		else:
+			rs = self.sigma/r
+			rcs = self.sigma/self.r_c
+
+			return 4*self.epsilon*(rs**12 - rs**6 - rcs**12 + rcs**6)
+
+
