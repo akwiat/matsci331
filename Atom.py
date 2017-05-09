@@ -13,3 +13,6 @@ class Atom:
 		ret.v = self.v
 		ret.mass = self.mass
 		return ret
+
+	def kinetic_energy(self):
+		return self.v.square()

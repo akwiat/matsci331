@@ -1,6 +1,8 @@
 import numpy as np
 from Vector3d import Vector3d
 
+from matplotlib import pyplot as plt
+
 class LennardJones:
 	def __init__(self, sigma=1, epsilon=1, r_c=1.3):
 		self.sigma = sigma
@@ -29,6 +31,19 @@ class LennardJones:
 		result = rhat * -g # force is negative gradient
 		# print("eval_force: result: ",result)
 		return result
+
+	def plot_potential(self):
+		x = np.linspace(1, self.r_c*2, num=100)
+		y = np.array([self.evaluate(x) for x in x])
+		plt.plot(x,y)
+		plt.show()
+
+	def plot_force(self):
+		x = np.linspace(1, self.r_c*2, num=100)
+		# print(x)
+		y = np.array([self.eval_force(Vector3d([x,0,0])) for x in x])
+		plt.plot(x,y)
+		plt.show()
 
 class LennardJonesCts(LennardJones):
 	def __init__(self, *args, **kwargs):

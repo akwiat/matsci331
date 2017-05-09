@@ -108,7 +108,7 @@ class ComputationalCell:
 
 	def scale_kinetic_energy(self, desired_ke):
 		total_ke = self.total_kinetic_energy()
-		# print("total_ke: ",total_ke)
+		print("total_ke: ",total_ke)
 		scalefactor = (desired_ke/total_ke)**(0.5)
 
 		for atom in self.iter_atoms():

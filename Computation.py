@@ -22,11 +22,15 @@ class Computation:
 	def iter_cells(self): # (cell, origin)
 		cell_size = self.computationalCell.cell_size()
 		numCopies = self.numCopies
+		num_middle = (numCopies-1)/2
 
 		for x in range(numCopies):
 			for y in range(numCopies):
 				for z in range(numCopies):
-					nOrigin = cell_size * Vector3d([x, y, z])
+					xm = x - num_middle
+					ym = y - num_middle
+					zm = z - num_middle
+					nOrigin = cell_size * Vector3d([xm, ym, zm])
 					yield (self.computationalCell, nOrigin)
 		return
 
@@ -42,33 +46,65 @@ class Computation:
 				yield nAtom
 		return
 
-	def iter_atoms(self):
-		cell = self.computationalCell
-		num_middle = (self.numCopies-1)/2
-		origin = self.get_cell_origin(num_middle, num_middle, num_middle)
+	# def iter_atoms(self):
+	# 	cell = self.computationalCell
+	# 	num_middle = (self.numCopies-1)/2
+	# 	origin = self.get_cell_origin(num_middle, num_middle, num_middle)
 
-		for a in cell.iter_atoms():
-			nAtom = a.translate_clone(origin)
-			yield nAtom
+	# 	for a in cell.iter_atoms():
+	# 		nAtom = a.translate_clone(origin)
+	# 		yield nAtom
+	# 	return
+
+	def iter_atoms(self):
+		for a in self.computationalCell.iter_atoms():
+			yield a
 		return
 
 	def total_energy(self):
+		result = 0.0
+		for ai in self.iter_atoms():
+			ke = ai.kinetic_energy()
+			# print("ke: ",ke)
+			result += ke
+			result += self.potential_of_atom(ai)
+		return result				
+
+	def potential_of_atom(self, atom):
+		result = 0.0
+		for aj in self.iter_all_atoms():
+			rVector = atom.r - aj.r
+			r = rVector.magnitude()
+			if r < 0.0001: continue
+			contribution = self.potential.evaluate(r)
+			result += contribution
+		return result
+	def total_kinetic_energy(self):
+		result = 0
+		for atom in self.iter_atoms():
+			result += atom.kinetic_energy()
+		return result
+	def total_potential_energy(self):
 		result = 0
 		count = 0
 		bondcount = 0
-		for ai in self.iter_main_cell_atoms():
+		for ai in self.iter_atoms():
 			count += 1
-			for aj in self.iter_atoms():
+			for aj in self.iter_all_atoms():
 				rVector = ai.r - aj.r
 				if rVector.magnitude() < 0.001: continue
 				r = rVector.magnitude()
 				# print(r)
 				contribution = self.potential.evaluate(r)
-				if contribution < -0.5:
+				# if contribution < -0.5:
+				# 	bondcount += 1
+				# bondcount += 1
+				if r < self.potential.r_c:
 					bondcount += 1
 				result += contribution
-				# print(contribution)
-				# print(result)
+				# print("r: ",r, ", contribution: ",contribution)
+				# print("contribution: ",contribution)
+				# print("result: ", result)
 		self.num_atoms = count
 		print("bondcount: {}".format(bondcount))
 		return result/2
@@ -81,6 +117,7 @@ class Computation:
 
 		force = Vector3d()
 		for a in self.iter_atoms():
+			# print("force_on_atom::a.r: ", a.r)
 			rVector = a.r - atom.r
 			if rVector.magnitude() < 0.001: continue
 			force_contribution = self.potential.eval_force(rVector)
@@ -94,8 +131,8 @@ class Computation:
 				raise ValueError
 		return force
 
-	def energy_per_atom(self):
-		result = self.total_energy()/self.num_atoms
+	def potential_per_atom(self):
+		result = self.total_potential_energy()/self.num_atoms
 		print("num_atoms: {}".format(self.num_atoms))
 		return result
 
