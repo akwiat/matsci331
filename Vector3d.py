@@ -6,12 +6,15 @@ class Vector3d(np.ndarray):
 		obj = np.asarray(buffer).view(cls)
 		return obj
 
+	def clone(self):
+		return Vector3d(np.copy(self))
+
 	def magnitude(self):
 		return np.linalg.norm(self)
 
 	def square(self):
 		return self.magnitude()**2
-		
+
 	def normalize(self):
 		m = self.magnitude()
 		if m == 0:

@@ -34,7 +34,7 @@ class ComputationalCell:
 		if self.vacancy:
 			self.full_atom_list.pop()
 
-		print("list size: ",len(self.full_atom_list))
+		# print("list size: ",len(self.full_atom_list))
 		return self.full_atom_list
 
 	def cell_size(self):
@@ -108,7 +108,7 @@ class ComputationalCell:
 
 	def scale_kinetic_energy(self, desired_ke):
 		total_ke = self.total_kinetic_energy()
-		print("total_ke: ",total_ke)
+		# print("total_ke: ",total_ke)
 		scalefactor = (desired_ke/total_ke)**(0.5)
 
 		for atom in self.iter_atoms():
@@ -122,6 +122,12 @@ class ComputationalCell:
 class FccCell(ComputationalCell):
 	def __init__(self):
 		super().__init__()
+		self.initialize()
+
+	def initialize(self):
+		self.atoms = []
+		self.full_atom_list = []
+		
 		self.atoms.append(Atom([0,0,0]))
 		self.atoms.append(Atom([0,1,1]))
 		self.atoms.append(Atom([1,1,0]))

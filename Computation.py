@@ -9,6 +9,8 @@ class Computation:
 		self.potential = PotentialType()
 
 
+		self.initial_energy = None
+
 	def add_vacancy(self):
 		self.computationalCell.vacancy = True
 
@@ -61,6 +63,30 @@ class Computation:
 			yield a
 		return
 
+	def store_initial_positions(self):
+		self.initial_atoms = []
+		for atom in self.iter_atoms():
+			self.initial_atoms.append(atom.clone())
+
+	def num_atoms(self):
+		return self.computationalCell.num_atoms()
+
+	def mean_squared_displacement(self):
+		result = 0.0
+		for ai, a in zip(self.initial_atoms, self.iter_atoms()):
+			dif = a.r - ai.r
+			result += dif.square()
+
+		return result/self.num_atoms()
+
+	def total_energy_deviation(self):
+		if self.initial_energy is None:
+			self.initial_energy = self.total_energy()
+
+		total = self.total_energy()
+		dev = total - self.initial_energy
+		return dev/(3*self.num_atoms())
+
 	def total_energy(self):
 		result = 0.0
 		for ai in self.iter_atoms():
@@ -79,11 +105,17 @@ class Computation:
 			contribution = self.potential.evaluate(r)
 			result += contribution
 		return result
+
 	def total_kinetic_energy(self):
 		result = 0
 		for atom in self.iter_atoms():
 			result += atom.kinetic_energy()
 		return result
+
+	def temperature(self):
+		ke = self.total_kinetic_energy()
+		return ke/self.num_atoms()
+
 	def total_potential_energy(self):
 		result = 0
 		count = 0
@@ -116,7 +148,8 @@ class Computation:
 			atom = atom.translate_clone(nOrigin)
 
 		force = Vector3d()
-		for a in self.iter_atoms():
+		# for a in self.iter_atoms():
+		for a in self.iter_all_atoms():
 			# print("force_on_atom::a.r: ", a.r)
 			rVector = a.r - atom.r
 			if rVector.magnitude() < 0.001: continue
@@ -160,6 +193,7 @@ class Computation:
 		avg_force = total_force/count
 		print("avg_force: ", avg_force)
 		return max_force
+
 	def minimize_energy_of_positions(self):
 		tolerance = 0.01
 		self.computationalCell.construct_full_atom_list()

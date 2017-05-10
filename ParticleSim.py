@@ -8,10 +8,13 @@ class ParticleSim(Computation):
 		self.cur_t = 0.0
 		self.simulation = None
 
+		self.integration_method.acc_fn = self.acc_of_atom
+		self.integration_method.initialize(self)
+
 	def acc_of_atom(self, atom):
 		f = self.force_on_atom(atom)
 		a = f/atom.mass
-		return a
+		return -a
 
 
 	def propagate(self, deltat=None):
