@@ -11,6 +11,19 @@ class Computation:
 
 		self.initial_energy = None
 
+		self.optimize_iter_atoms = False
+
+	def setup_optimization(self):
+		self.all_atoms_list = []
+		for atom in self.iter_all_atoms():
+			self.all_atoms_list.append(atom)
+
+		self.atoms_list = []
+		for atom in self.iter_atoms():
+			
+
+		self.optimize_iter_atoms = True
+
 	def add_vacancy(self):
 		self.computationalCell.vacancy = True
 

@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 class Vector3d(np.ndarray):
 	def __new__(cls, buffer=[0.0,0.0,0.0]):
@@ -21,3 +22,13 @@ class Vector3d(np.ndarray):
 			raise ValueError
 
 		return self / m
+
+	@classmethod
+	def random(cls):
+		ret = cls([random.random() for i in range(3)])
+		return ret
+
+	@classmethod
+	def identity(cls):
+		ret = cls([1]*3)
+		return ret
