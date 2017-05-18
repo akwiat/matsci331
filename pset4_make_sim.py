@@ -23,7 +23,7 @@ def Cell_pset4(temp=None, num_basic_copies=None):
 
 def make_md(temp=0.2, num_basic_copies=1):
 	random.seed(8484)
-	computation = ParticleSim(CellType=Cell_pset3(temp=temp, num_basic_copies=num_basic_copies), PotentialType=LennardJonesCts, IntegrationType=Verlet)
+	computation = ParticleSim(CellType=Cell_pset4(temp=temp, num_basic_copies=num_basic_copies), PotentialType=LennardJonesCts, IntegrationType=Verlet)
 
 	s = Simulation(computation=computation)
 	s.num_steps = 1000
@@ -31,6 +31,11 @@ def make_md(temp=0.2, num_basic_copies=1):
 	# print([atom.v for atom in ps.computationalCell.full_atom_list])
 	return s
 
-def make_monte_carlo():
+def make_montecarlo(temp=0.2, num_basic_copies=1):
 	random.seed(8484)
-	computation = MonteCarlo(CellType=Cell_pset4(), PotentialType=LennardJonesCts)
+	computation = MonteCarlo(CellType=Cell_pset4(temp=temp, num_basic_copies=num_basic_copies), PotentialType=LennardJonesCts, temp=temp)
+	computation.setup_optimization()
+	s = Simulation(computation=computation)
+	s.num_steps = 1000
+	s.deltat = 1
+	return s

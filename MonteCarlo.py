@@ -5,12 +5,22 @@ from Computation import Computation
 
 class MonteCarlo(Computation):
 	def __init__(self, CellType=None, PotentialType=None, temp=None):
-		super.__init__(CellType=CellType, PotentialType=PotentialType)
+		super().__init__(CellType=CellType, PotentialType=PotentialType)
 		self.beta = 1/temp if temp else None # the MC temp
 
+		self.total_attempts = 0
+		self.num_accepts = 0
+		self.delta_scale = 0.1
+
 	def sample_atom(self):
-		atom_list = self.computationalCell.explicit_atom_list
-		return random.choice(atom_list)
+
+		atoms_list = self.atoms_list
+		return random.choice(atoms_list)
+
+	def percentage_accepts(self):
+		if self.total_attempts == 0: return 0
+		return self.num_accepts/self.total_attempts
+
 
 	def propagate(self, deltat=None):
 		orig_energy = self.total_potential_energy()
@@ -18,10 +28,10 @@ class MonteCarlo(Computation):
 		atom = self.sample_atom()
 		# adjust one atom
 		randvec = atom.r.random()
-		half = randvec.id() * 0.5
-		print("rand: ", randvec)
+		half = randvec.identity() * 0.5
+		# print("rand: ", randvec)
 		delta = self.delta_scale * (randvec - half)
-		print("delta: ", delta)
+		# print("delta: ", delta)
 		atom.r += delta
 
 		# compute energy
@@ -29,11 +39,17 @@ class MonteCarlo(Computation):
 
 		# decide whether to keep the change (based on beta)
 		delta_energy = energy - orig_energy
+		# print("delta_e: ", delta_energy)
 		cutoff = np.exp(-self.beta * delta_energy)
+		print("delta: ",delta_energy, " cutoff: {}".format(cutoff))
 		sample = random.random()
 		if sample < cutoff:
 			#keep the change
-			pass
+			self.num_accepts += 1
+			print("accepting: ", self.num_accepts)
 		else:
 			atom.r -= delta
 			# undo the change
+			print("rejecting")
+		self.total_attempts += 1
+

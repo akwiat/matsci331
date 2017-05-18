@@ -20,7 +20,13 @@ class Computation:
 
 		self.atoms_list = []
 		for atom in self.iter_atoms():
-			
+			self.atoms_list.append(atom)
+
+		def return_explicit_list(self):
+			return self.atoms_list
+
+		Computation.iter_atoms = return_explicit_list
+
 
 		self.optimize_iter_atoms = True
 
@@ -151,7 +157,7 @@ class Computation:
 				# print("contribution: ",contribution)
 				# print("result: ", result)
 		self.num_atoms = count
-		print("bondcount: {}".format(bondcount))
+		# print("bondcount: {}".format(bondcount))
 		return result/2
 
 	def force_on_atom(self, atom=None):
