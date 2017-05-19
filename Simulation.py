@@ -1,6 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import json
+import shutil
+import os
 
 class Simulation:
 	class TrackedQuantity:
@@ -19,11 +21,19 @@ class Simulation:
 			self.q[self.cur_index] = data
 			self.cur_index += 1
 
-		def to_JSON(self):
-			return {
-				"t":self.t,
-				"q":self.q,
-			}
+		def np_write_file(self, filename):
+			np.save(filename, np.stack([self.t, self.q]))
+
+		@classmethod
+		def np_load(cls, filename):
+			ret = cls(None)
+			arr = np.load(filename)
+			l = np.split(arr, 2)
+			ret.t = l[0][0]
+			ret.q = l[1][0]
+			# print(ret.t)
+			# print(ret.q)
+			return ret
 
 		@classmethod
 		def make_from_obj(cls, obj):
@@ -40,13 +50,15 @@ class Simulation:
 		self.computation = computation
 
 		self.should_plot = False
-		self.should_store = True
+		self.should_store = False
+		self.should_write = True
 
 		self.name = None
 
 	def track_quantity(self, computeFn, name=None):
 		if name is None:
 			name is str(len(self.tracked_quantities))
+			print("warning - no name chosen for tracked_quantity")
 
 		tq = self.TrackedQuantity(computeFn)
 		tq.setup(num_steps=self.num_steps)
@@ -72,18 +84,20 @@ class Simulation:
 		if tqname is None:
 			raise ValueError("no tracked quantity name")
 
-		return "{}_{}".format(self.name, tqname)
+		return os.path.join(self.name, "{}.npy".format(tqname))
 
 	def store(self):
 		for name, tq in self.tracked_quantities.items():
-			with open(self.make_storage_name(name), "w") as f:
-				json.dump(tq.to_JSON(), f)
+			filename = self.make_storage_name(name)
+			tq.np_write_file(filename)
 
 	def post_run(self):
 		if self.should_plot is True:
 			self.plot()
 		if self.should_store is True:
 			self.store()
+		if self.should_write is True:
+			self.write_file()
 
 	def run(self):
 		for step in range(self.num_steps):
@@ -95,6 +109,34 @@ class Simulation:
 			self.computation.propagate(deltat=self.deltat)
 			self.t += self.deltat
 		self.post_run()
+
+	def make_file_name(self):
+		if self.name is None: raise ValueError("no simulation name")
+		return os.path.join(self.name, "{}.sim".format(self.name))
+
+	def write_file(self):
+		tqnamelist = []
+		if self.name is None: raise ValueError("no simulation name")
+		if os.path.exists(self.name):
+			shutil.rmtree(self.name)
+		os.mkdir(self.name)
+		for name, tq in self.tracked_quantities.items():
+			filename = self.make_storage_name(name)
+			tq.np_write_file(filename)
+			tqnamelist.append(filename)
+		with open(self.make_file_name(), "w") as f:
+			json.dump(tqnamelist, f)
+
+	@classmethod
+	def make_from_file(cls, name):
+		ret = cls()
+		ret.name = name
+		with open(ret.make_file_name()) as f:
+			tqnamelist = json.load(f)
+
+		for name in tqnamelist:
+			ret.tracked_quantities[name] = cls.TrackedQuantity.np_load(name)
+		return ret
 
 	def plot_file(self, filename):
 		with open(filename) as f:
