@@ -22,13 +22,13 @@ class Simulation:
 			self.cur_index += 1
 
 		def np_write_file(self, filename):
-			np.save(filename, np.stack([self.t, self.q]))
+			np.save(filename, np.vstack([self.t, self.q]))
 
 		@classmethod
 		def np_load(cls, filename):
 			ret = cls(None)
 			arr = np.load(filename)
-			l = np.split(arr, 2)
+			l = np.vsplit(arr, 2)
 			ret.t = l[0][0]
 			ret.q = l[1][0]
 			# print(ret.t)
