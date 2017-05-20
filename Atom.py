@@ -21,6 +21,11 @@ class Atom:
 		ret.r += origin
 		return ret
 
+	def clone_to(self, atom):
+		atom.r = self.r
+		return atom
+
+
 
 	def kinetic_energy(self):
 		return self.v.square()

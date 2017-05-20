@@ -1,6 +1,18 @@
 from Vector3d import Vector3d
+from Atom import Atom
+
+import types
+import math
 
 class Computation:
+	class Cache(dict):
+		def __init__():
+			super().__init__()
+
+		def invalidate(name):
+			self[name] = None
+
+
 	def __init__(self, CellType=None, PotentialType=None):
 		self.CellType = CellType
 		self.computationalCell = CellType()
@@ -13,6 +25,8 @@ class Computation:
 
 		self.optimize_iter_atoms = False
 
+		self.cache = {}
+
 	def setup_optimization(self):
 		self.all_atoms_list = []
 		for atom in self.iter_all_atoms():
@@ -22,11 +36,22 @@ class Computation:
 		for atom in self.iter_atoms():
 			self.atoms_list.append(atom)
 
+		self.cell_list = []
+		for cell in self.iter_cells():
+			self.cell_list.append(cell)
+
 		def return_explicit_list(self):
 			return self.atoms_list
 
-		Computation.iter_atoms = return_explicit_list
+		def explicit_all_atoms(self):
+			return self.all_atoms_list
 
+		def explicit_cells(self):
+			return self.cell_list
+
+		self.iter_atoms = types.MethodType(return_explicit_list, self)
+		self.iter_cells = types.MethodType(explicit_cells, self)
+		# Computation.iter_all_atoms = explicit_all_atoms
 
 		self.optimize_iter_atoms = True
 
@@ -60,11 +85,14 @@ class Computation:
 		nOrigin = cell_size * Vector3d([x,y,z])
 		return nOrigin
 
-	def iter_all_atoms(self):
+	def iter_all_atoms(self, _retatom=Atom()):
 		for cell,origin in self.iter_cells():
 			for a in cell.iter_atoms():
 				nAtom = a.translate_clone(origin)
 				yield nAtom
+				# a.clone_to(_retatom)
+				# _retatom.r += origin
+				# yield _retatom
 		return
 
 	# def iter_atoms(self):
@@ -136,29 +164,45 @@ class Computation:
 		return ke/self.num_atoms()
 
 	def total_potential_energy(self):
+		if "total_potential" in self.cache:
+			cache_val = self.cache["total_potential"]
+			# print(cache_val)
+			if cache_val is not None:
+				# print("using cache")
+				return cache_val
+
 		result = 0
 		count = 0
 		bondcount = 0
+		inner_loop_count = 0
+		full_atom_list = []
+		for atom in self.iter_all_atoms():
+			full_atom_list.append(atom)
+
 		for ai in self.iter_atoms():
-			count += 1
-			for aj in self.iter_all_atoms():
-				rVector = ai.r - aj.r
-				if rVector.magnitude() < 0.001: continue
-				r = rVector.magnitude()
-				# print(r)
-				contribution = self.potential.evaluate(r)
-				# if contribution < -0.5:
-				# 	bondcount += 1
-				# bondcount += 1
-				if r < self.potential.r_c:
-					bondcount += 1
-				result += contribution
-				# print("r: ",r, ", contribution: ",contribution)
-				# print("contribution: ",contribution)
-				# print("result: ", result)
-		self.num_atoms = count
+			# count += 1
+			for aj in full_atom_list:
+			# for aj in self.iter_all_atoms():
+				# rVector = ai.r - aj.r
+				# r = rVector.magnitude()
+				
+				r = math.sqrt((ai.r[0] - aj.r[0])**2 + (ai.r[1] - aj.r[1])**2 + (ai.r[2] - aj.r[2])**2)
+				# print((ai.r[0] - aj.r[0])**2 + (ai.r[1] - aj.r[1])**2 + (ai.r[2] - aj.r[2])**2)
+				
+				if r < 0.001: continue
+
+				result += self.potential.evaluate(r)
+				# result += contribution
+
+
+		# self.num_atoms = count
 		# print("bondcount: {}".format(bondcount))
-		return result/2
+		final_result = result/2
+
+		self.cache["total_potential"] = final_result
+		# print("caching: ", final_result)
+		# print(inner_loop_count)
+		return final_result
 
 	def force_on_atom(self, atom=None):
 		if atom is None:

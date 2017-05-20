@@ -4,6 +4,7 @@ import json
 import shutil
 import os
 
+
 class Simulation:
 	class TrackedQuantity:
 		def __init__(self, compute):
@@ -49,9 +50,9 @@ class Simulation:
 		self.t = 0.0
 		self.computation = computation
 
-		self.should_plot = False
+		self.should_plot = True
 		self.should_store = False
-		self.should_write = True
+		self.should_write = False
 
 		self.name = None
 
@@ -101,7 +102,7 @@ class Simulation:
 
 	def run(self):
 		for step in range(self.num_steps):
-			step = round(self.t/self.deltat)
+			timestep = round(self.t/self.deltat)
 			if step % 100 == 0:
 				print("*********Step: ",step)
 
@@ -113,6 +114,10 @@ class Simulation:
 	def make_file_name(self):
 		if self.name is None: raise ValueError("no simulation name")
 		return os.path.join(self.name, "{}.sim".format(self.name))
+
+	@classmethod
+	def tqname_from_file(cls, filename):
+		return os.path.split(filename)[1][:-len(".npy")]
 
 	def write_file(self):
 		tqnamelist = []
@@ -135,7 +140,7 @@ class Simulation:
 			tqnamelist = json.load(f)
 
 		for name in tqnamelist:
-			ret.tracked_quantities[name] = cls.TrackedQuantity.np_load(name)
+			ret.tracked_quantities[cls.tqname_from_file(name)] = cls.TrackedQuantity.np_load(name)
 		return ret
 
 	def plot_file(self, filename):

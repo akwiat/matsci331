@@ -24,7 +24,7 @@ def Cell_pset4(temp=None, num_basic_copies=None):
 def make_md(temp=0.2, num_basic_copies=1):
 	random.seed(8484)
 	computation = ParticleSim(CellType=Cell_pset4(temp=temp, num_basic_copies=num_basic_copies), PotentialType=LennardJonesCts, IntegrationType=Verlet)
-
+	computation.setup_optimization()
 	s = Simulation(computation=computation)
 	s.num_steps = 1000
 	s.deltat = 0.01
