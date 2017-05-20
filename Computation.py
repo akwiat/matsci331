@@ -27,6 +27,16 @@ class Computation:
 
 		self.cache = {}
 
+		# self.cached_all_atoms = None
+
+	# def quick_iter_all_atoms(self):
+	# 	if self.cached_all_atoms is None:
+	# 		self.cached_all_atoms = []
+	# 		for atom in self.iter_all_atoms():
+	# 			self.cached_all_atoms.append(atom)
+
+	# 	return self.cached_all_atoms
+
 	def setup_optimization(self):
 		self.all_atoms_list = []
 		for atom in self.iter_all_atoms():
@@ -95,6 +105,13 @@ class Computation:
 				# yield _retatom
 		return
 
+	def quick_iter_all_atoms(self, _retatom=Atom()):
+		for cell,origin in self.iter_cells():
+			for a in cell.iter_atoms():
+				a.clone_to(_retatom)
+				_retatom.r += origin
+				yield _retatom
+		return
 	# def iter_atoms(self):
 	# 	cell = self.computationalCell
 	# 	num_middle = (self.numCopies-1)/2
@@ -212,7 +229,7 @@ class Computation:
 
 		force = Vector3d()
 		# for a in self.iter_atoms():
-		for a in self.iter_all_atoms():
+		for a in self.quick_iter_all_atoms():
 			# print("force_on_atom::a.r: ", a.r)
 			rVector = a.r - atom.r
 			if rVector.magnitude() < 0.001: continue

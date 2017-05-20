@@ -18,8 +18,8 @@ class ParticleSim(Computation):
 
 
 	def propagate(self, deltat=None):
-		atoms = self.iter_atoms()
-		for atom in atoms:
+		self.cached_all_atoms = None # invalidate cache every iteration
+		for atom in self.iter_atoms():
 			# print(atom.v)
 			self.integration_method.integrate(atom=atom, deltat=deltat, get_acc=self.acc_of_atom)
 			

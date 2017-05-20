@@ -22,7 +22,7 @@ class Atom:
 		return ret
 
 	def clone_to(self, atom):
-		atom.r = self.r
+		atom.r = self.r.clone()
 		return atom
 
 
