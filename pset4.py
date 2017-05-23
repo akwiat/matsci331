@@ -1,4 +1,4 @@
-from pset4_make_sim import make_md, make_montecarlo
+from pset4_make_sim import make_md, make_montecarlo, make_nanoparticle_montecarlo
 import cProfile
 
 
@@ -12,8 +12,9 @@ def test_montecarlo():
     sim.run()
 
 def test_md():
-    sim = make_md(num_basic_copies=1, temp=0.2)
+    sim = make_md(num_basic_copies=2, temp=0.2)
     sim.num_steps = 100
+    sim.should_plot = True
     sim.track_quantity(sim.computation.total_potential_energy)
     sim.run()
 
@@ -103,10 +104,21 @@ def prob4_anneal():
     sim.computation.prepare() # perform the burn
     sim.run()
 
+def profile_nanoparticle():
+    sim = make_nanoparticle_montecarlo()
+    sim.should_write = False
+    sim.should_plot = False
+    sim.num_steps = 1000
+    sim.run()
+
 if __name__ == "__main__":
     # cProfile.run('test_montecarlo()', sort='cumtime')
     # cProfile.run('test_total_potential()', sort='cumtime')
     # cProfile.run('profile_iterallatoms()', sort='cumtime')
+    # prob1()
+    
+    # cProfile.run('test_md()', sort='cumtime')
+    cProfile.run('profile_nanoparticle()', sort='cumtime')
 
 
     # test_md()
@@ -118,5 +130,5 @@ if __name__ == "__main__":
     # test_montecarlo()
     # test_burn()
     # prob3_heatcap()
-    prob4_anneal()
+    # prob4_anneal()
 

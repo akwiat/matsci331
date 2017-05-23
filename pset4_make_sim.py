@@ -39,3 +39,13 @@ def make_montecarlo(temp=0.2, num_basic_copies=1):
 	s.num_steps = 1000
 	s.deltat = 1
 	return s
+
+def make_nanoparticle_montecarlo(temp=0.2, num_basic_copies=2):
+	random.seed(8484)
+	computation = MonteCarlo(CellType=Cell_pset4(temp=temp, num_basic_copies=num_basic_copies), PotentialType=LennardJonesCts, temp=temp)
+	computation.numCopies = 1
+	computation.setup_optimization()
+	s = Simulation(computation=computation)
+	s.num_steps = 1000
+	s.deltat = 1
+	return s
